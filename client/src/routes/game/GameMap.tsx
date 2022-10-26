@@ -1,8 +1,8 @@
 import { Graphics } from "@inlet/react-pixi"
-import Point from "./types/Point"
+import Point from "./../../types/Point"
 import { Application, Graphics as PixiGraphics } from "pixi.js"
 import { useCallback, useEffect } from "react"
-import { mousePosToGamePos, moveTowards, PLAYER_SPEED } from "./Constants"
+import { mousePosToGamePos, moveTowards, PLAYER_SPEED } from "./../../Constants"
 
 type GameMapProps = {
     app: Application,
@@ -23,6 +23,7 @@ const GameMap = ({ app, isMoving, mousePosition, lastTargetPosition, offset, onO
     useEffect(() => {
         app.ticker.add(updatePostion)
         return () => {
+            if (app.ticker === null) return
             app.ticker.remove(updatePostion)
         }
     }, [app, updatePostion])

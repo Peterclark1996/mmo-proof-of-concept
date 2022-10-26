@@ -1,17 +1,18 @@
 import { AppConsumer, Sprite, Stage, Text } from "@inlet/react-pixi"
 import { TextStyle } from "@pixi/text"
 import { useState } from "react"
-import Character from "./assets/Character.png"
-import { GAME_SCREEN_HEIGHT, GAME_SCREEN_WIDTH, mousePosToGamePos } from "./Constants"
+import Character from "./../../assets/Character.png"
+import { GAME_SCREEN_HEIGHT, GAME_SCREEN_WIDTH, mousePosToGamePos } from "./../../Constants"
 import GameMap from "./GameMap"
-import Point from "./types/Point"
+import Point from "./../../types/Point"
 
 type GameScreenProps = {
+    username: string,
     offset: Point,
     onOffsetUpdated: (point: Point) => void
 }
 
-const GameScreen = ({ offset, onOffsetUpdated }: GameScreenProps) => {
+const GameScreen = ({ username, offset, onOffsetUpdated }: GameScreenProps) => {
     const [isMoving, setIsMoving] = useState(false)
     const [mousePosition, setMousePosition] = useState<Point>({ x: 0, y: 0 })
     const [lastTargetPosition, setLastTargetPosition] = useState<Point>(offset)
@@ -56,7 +57,7 @@ const GameScreen = ({ offset, onOffsetUpdated }: GameScreenProps) => {
                     }
                 </AppConsumer>
                 <Sprite image={Character} anchor={0.5} x={GAME_SCREEN_WIDTH / 2} y={GAME_SCREEN_HEIGHT / 2} />
-                <Text text="Pete" anchor={0.5} x={GAME_SCREEN_WIDTH / 2} y={(GAME_SCREEN_HEIGHT / 2) - 30} style={new TextStyle({ fontSize: 20 })} />
+                <Text text={username} anchor={0.5} x={GAME_SCREEN_WIDTH / 2} y={(GAME_SCREEN_HEIGHT / 2) - 30} style={new TextStyle({ fontSize: 20 })} />
             </Stage>
         </div>
     )
