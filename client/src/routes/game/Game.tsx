@@ -15,11 +15,15 @@ const Game = ({ username }: GameProps) => {
         if (username === "") navigate("/login")
     }, [username])
 
-    const [offset, setOffset] = useState<Point>({ x: GAME_SCREEN_WIDTH / 2, y: GAME_SCREEN_HEIGHT / 2 })
+    const [offset, setOffset] = useState<Point>({
+        x: GAME_SCREEN_WIDTH / 2,
+        y: GAME_SCREEN_HEIGHT / 2
+    })
 
     return (
-        <div className="App">
+        <div className="d-flex flex-column">
             <GameScreen username={username} offset={offset} onOffsetUpdated={setOffset} />
+            <div>Q: Spell</div>
         </div>
     )
 }
