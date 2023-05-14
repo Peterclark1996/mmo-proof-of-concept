@@ -1,16 +1,16 @@
 import { AppConsumer, Sprite, Stage, Text } from "@inlet/react-pixi"
 import { TextStyle } from "@pixi/text"
 import { useCallback, useEffect, useState } from "react"
-import Character from "./../../assets/Character.png"
+import CharacterSprite from "./../../assets/Character.png"
 import { GAME_SCREEN_CENTER, GAME_SCREEN_HEIGHT, GAME_SCREEN_WIDTH, SPRITE_HEIGHT } from "../../constants"
 import GameMap from "./GameMap"
 import Point from "./../../types/Point"
 import { useWebSocket } from "../../socket/WebSocketContext"
 import { EventToServerType } from "../../socket/EventToServer"
-import OtherPlayers from "./OtherPlayers"
 import PlayerPosition from "../../types/PlayerPosition"
 
 type GameScreenProps = {
+    localUsername: string
     playerPositions: PlayerPosition[]
     offset: Point
     localPlayerPosition: Point
@@ -22,6 +22,7 @@ let recentlySentMovement = false
 let queuedMovement: Point | undefined = undefined
 
 const GameScreen = ({
+    localUsername,
     playerPositions,
     offset,
     localPlayerPosition,
@@ -100,6 +101,29 @@ const GameScreen = ({
 
     const currentTargetPostion = isMoving ? mousePositionInGameWorld : lastTargetPosition
 
+    const serverPlayers = playerPositions.filter(playerPosition => playerPosition.playerId !== localUsername)
+
+    const serverPlayerSpriteComponents = serverPlayers.map(playerPosition => (
+        <Sprite
+            key={`${playerPosition.playerId}-sprite`}
+            image={CharacterSprite}
+            anchor={0.5}
+            x={offset.x + playerPosition.x}
+            y={offset.y + playerPosition.y - SPRITE_HEIGHT / 2}
+        />
+    ))
+
+    const serverPlayerInfoComponents = serverPlayers.map(playerPosition => (
+        <Text
+            key={`${playerPosition.playerId}-text`}
+            text={playerPosition.playerId}
+            anchor={0.5}
+            x={offset.x + playerPosition.x}
+            y={offset.y + playerPosition.y - SPRITE_HEIGHT - 15}
+            style={new TextStyle({ fontSize: 20 })}
+        />
+    ))
+
     return (
         <div onMouseMove={onMouseMove} onMouseDown={onMouseDown} onMouseUp={onMouseUp} onContextMenu={onContextMenu}>
             <Stage
@@ -109,32 +133,25 @@ const GameScreen = ({
             >
                 <AppConsumer>
                     {app => (
-                        <>
-                            <GameMap
-                                app={app}
-                                currentTargetPostion={currentTargetPostion}
-                                offset={offset}
-                                serverPlayerPosition={serverPlayerPosition}
-                                localPlayerPosition={localPlayerPosition}
-                                onLocalPlayerPositionUpdated={onLocalPlayerPositionUpdated}
-                            />
-                            <OtherPlayers playerPositions={playerPositions} offset={offset} />
-                        </>
+                        <GameMap
+                            app={app}
+                            currentTargetPostion={currentTargetPostion}
+                            offset={offset}
+                            serverPlayerPosition={serverPlayerPosition}
+                            localPlayerPosition={localPlayerPosition}
+                            onLocalPlayerPositionUpdated={onLocalPlayerPositionUpdated}
+                        />
                     )}
                 </AppConsumer>
 
+                {serverPlayerSpriteComponents}
+                {serverPlayerInfoComponents}
+
                 <Sprite
-                    image={Character}
+                    image={CharacterSprite}
                     anchor={0.5}
                     x={GAME_SCREEN_CENTER.x}
                     y={GAME_SCREEN_CENTER.y - SPRITE_HEIGHT / 2}
-                />
-                <Text
-                    text="Local"
-                    anchor={0.5}
-                    x={GAME_SCREEN_CENTER.x}
-                    y={GAME_SCREEN_CENTER.y - SPRITE_HEIGHT - 15}
-                    style={new TextStyle({ fontSize: 20 })}
                 />
             </Stage>
         </div>

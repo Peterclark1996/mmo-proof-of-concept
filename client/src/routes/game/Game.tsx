@@ -65,6 +65,7 @@ const Game = ({ username }: GameProps) => {
                 Client Position: {Math.round(localPlayerPosition.x)}, {Math.round(localPlayerPosition.y)}
             </div>
             <GameScreen
+                localUsername={username}
                 playerPositions={playerPositions}
                 offset={offset}
                 serverPlayerPosition={localPlayerFromServerPerspective ?? { x: 0, y: 0 }}
