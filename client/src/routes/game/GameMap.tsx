@@ -2,33 +2,47 @@ import { Graphics } from "@inlet/react-pixi"
 import Point from "./../../types/Point"
 import { Application, Graphics as PixiGraphics } from "pixi.js"
 import { useCallback, useEffect } from "react"
-import { moveTowards, BASE_PLAYER_SPEED } from "../../constants"
+import {
+    moveTowards,
+    BASE_PLAYER_SPEED,
+    INTERPOLATION_PULL_BACK_SPEED_RATIO,
+    PIXI_TICKER_TARGET_FPMS
+} from "../../constants"
 
 type GameMapProps = {
     app: Application
     currentTargetPostion: Point
     offset: Point
+    serverPlayerPosition: Point
     localPlayerPosition: Point
     onLocalPlayerPositionUpdated: (point: Point) => void
 }
-
-const pixiTickerTargetFPMS = 0.06
 
 const GameMap = ({
     app,
     currentTargetPostion,
     offset,
+    serverPlayerPosition,
     localPlayerPosition,
     onLocalPlayerPositionUpdated
 }: GameMapProps) => {
     const updatePostion = useCallback(
         (delta: number) => {
-            const deltaSeconds = delta / pixiTickerTargetFPMS / 1000
+            const deltaSeconds = delta / PIXI_TICKER_TARGET_FPMS / 1000
+
             const maxDistanceToTravel = BASE_PLAYER_SPEED * deltaSeconds
-            const newPoint = moveTowards(localPlayerPosition, currentTargetPostion, maxDistanceToTravel)
-            onLocalPlayerPositionUpdated(newPoint)
+            const nextStepTowardsTarget = moveTowards(localPlayerPosition, currentTargetPostion, maxDistanceToTravel)
+
+            const maxDistanceToAdjustForInterpolation = maxDistanceToTravel * INTERPOLATION_PULL_BACK_SPEED_RATIO
+            const nextStepInterpolatedTowardsServerPosition = moveTowards(
+                nextStepTowardsTarget,
+                serverPlayerPosition,
+                maxDistanceToAdjustForInterpolation
+            )
+
+            onLocalPlayerPositionUpdated(nextStepInterpolatedTowardsServerPosition)
         },
-        [currentTargetPostion, localPlayerPosition, onLocalPlayerPositionUpdated]
+        [currentTargetPostion, localPlayerPosition, onLocalPlayerPositionUpdated, serverPlayerPosition]
     )
 
     useEffect(() => {

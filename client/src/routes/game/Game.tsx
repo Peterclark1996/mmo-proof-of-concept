@@ -67,6 +67,7 @@ const Game = ({ username }: GameProps) => {
             <GameScreen
                 playerPositions={playerPositions}
                 offset={offset}
+                serverPlayerPosition={localPlayerFromServerPerspective ?? { x: 0, y: 0 }}
                 localPlayerPosition={localPlayerPosition}
                 onLocalPlayerPositionUpdated={onLocalPlayerPositionUpdated}
             />

@@ -1,5 +1,9 @@
 import Point from "./types/Point"
 
+export const PIXI_TICKER_TARGET_FPMS = 0.06
+
+export const INTERPOLATION_PULL_BACK_SPEED_RATIO = 0.3
+
 export const GAME_SCREEN_WIDTH = 1200
 export const GAME_SCREEN_HEIGHT = 800
 

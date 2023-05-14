@@ -14,6 +14,7 @@ type GameScreenProps = {
     playerPositions: PlayerPosition[]
     offset: Point
     localPlayerPosition: Point
+    serverPlayerPosition: Point
     onLocalPlayerPositionUpdated: (point: Point) => void
 }
 
@@ -24,6 +25,7 @@ const GameScreen = ({
     playerPositions,
     offset,
     localPlayerPosition,
+    serverPlayerPosition,
     onLocalPlayerPositionUpdated
 }: GameScreenProps) => {
     const [isMoving, setIsMoving] = useState(false)
@@ -112,6 +114,7 @@ const GameScreen = ({
                                 app={app}
                                 currentTargetPostion={currentTargetPostion}
                                 offset={offset}
+                                serverPlayerPosition={serverPlayerPosition}
                                 localPlayerPosition={localPlayerPosition}
                                 onLocalPlayerPositionUpdated={onLocalPlayerPositionUpdated}
                             />
