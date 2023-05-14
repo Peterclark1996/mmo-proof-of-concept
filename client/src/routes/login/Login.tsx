@@ -1,4 +1,3 @@
-import classes from "./Login.module.scss"
 import { useNavigate } from "react-router-dom"
 
 type LoginProps = {
@@ -17,11 +16,15 @@ const Login = ({ username, setUsername }: LoginProps) => {
     }
 
     return (
-        <div className="d-flex flex-column rounded p-2 bg-secondary text-white user-select-none">
-            <h1>Pete MMO</h1>
-            <div className="d-flex">
-                <input className={`rounded border-0 px-2 ${classes.input}`} value={username} onChange={onInputChange} />
-                <div role="button" className="ms-2 p-1 rounded bg-success" onClick={onLoginClick}>
+        <div className="rounded p-2 text-white select-none bg-slate-500">
+            <span className="text-4xl">Pete MMO</span>
+            <div className="flex mt-2">
+                <input
+                    className="rounded border-0 px-2 outline-none text-slate-800"
+                    value={username}
+                    onChange={onInputChange}
+                />
+                <div role="button" className="ms-2 py-1 px-2 rounded bg-green-400" onClick={onLoginClick}>
                     Login
                 </div>
             </div>

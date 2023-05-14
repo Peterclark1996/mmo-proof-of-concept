@@ -56,7 +56,7 @@ const Game = ({ username }: GameProps) => {
     }
 
     return (
-        <div className="d-flex flex-column">
+        <div>
             <div>
                 Server Position: {Math.round(localPlayerFromServerPerspective?.x ?? 0)},{" "}
                 {Math.round(localPlayerFromServerPerspective?.y ?? 0)}
