@@ -2,23 +2,34 @@ import { Graphics } from "@inlet/react-pixi"
 import Point from "./../../types/Point"
 import { Application, Graphics as PixiGraphics } from "pixi.js"
 import { useCallback, useEffect } from "react"
-import { mousePosToGamePos, moveTowards, PLAYER_SPEED } from "./../../Constants"
+import { moveTowards, BASE_PLAYER_SPEED } from "../../constants"
 
 type GameMapProps = {
-    app: Application,
-    isMoving: boolean,
-    mousePosition: Point,
-    lastTargetPosition: Point,
-    offset: Point,
-    onOffsetUpdated: (point: Point) => void
+    app: Application
+    currentTargetPostion: Point
+    offset: Point
+    localPlayerPosition: Point
+    onLocalPlayerPositionUpdated: (point: Point) => void
 }
 
-const GameMap = ({ app, isMoving, mousePosition, lastTargetPosition, offset, onOffsetUpdated }: GameMapProps) => {
-    const updatePostion = useCallback((delta: number) => {
-        const speed = PLAYER_SPEED * delta
-        const targetPosition = mousePosToGamePos(mousePosition, offset)
-        onOffsetUpdated(moveTowards(offset, isMoving ? targetPosition : lastTargetPosition, speed))
-    }, [offset, mousePosition])
+const pixiTickerTargetFPMS = 0.06
+
+const GameMap = ({
+    app,
+    currentTargetPostion,
+    offset,
+    localPlayerPosition,
+    onLocalPlayerPositionUpdated
+}: GameMapProps) => {
+    const updatePostion = useCallback(
+        (delta: number) => {
+            const deltaSeconds = delta / pixiTickerTargetFPMS / 1000
+            const maxDistanceToTravel = BASE_PLAYER_SPEED * deltaSeconds
+            const newPoint = moveTowards(localPlayerPosition, currentTargetPostion, maxDistanceToTravel)
+            onLocalPlayerPositionUpdated(newPoint)
+        },
+        [currentTargetPostion, localPlayerPosition, onLocalPlayerPositionUpdated]
+    )
 
     useEffect(() => {
         app.ticker.add(updatePostion)
@@ -28,26 +39,42 @@ const GameMap = ({ app, isMoving, mousePosition, lastTargetPosition, offset, onO
         }
     }, [app, updatePostion])
 
-    const draw = useCallback((g: PixiGraphics) => {
-        g.clear()
-        g.beginFill(0x88898c, 1)
+    const draw = useCallback(
+        (g: PixiGraphics) => {
+            g.clear()
+            g.beginFill(0x88898c, 1)
 
-        g.drawRect(-250 + offset.x, -250 + offset.y, 100, 100)
-        g.drawRect(150 + offset.x, -250 + offset.y, 100, 100)
-        g.drawRect(-250 + offset.x, 150 + offset.y, 100, 100)
-        g.drawRect(150 + offset.x, 150 + offset.y, 100, 100)
+            const drawRect = (x: number, y: number, width: number, height: number) => {
+                g.drawRect(offset.x + x, offset.y + y, width, height)
+            }
 
-        g.drawRect(-325 + offset.x, -50 + offset.y, 100, 100)
-        g.drawRect(225 + offset.x, -50 + offset.y, 100, 100)
-        g.drawRect(-50 + offset.x, 225 + offset.y, 100, 100)
-        g.drawRect(-50 + offset.x, -325 + offset.y, 100, 100)
+            const drawCircle = (x: number, y: number, radius: number) => {
+                g.drawCircle(offset.x + x, offset.y + y, radius)
+            }
 
-        g.endFill()
-    }, [offset])
+            drawRect(-250, -250, 100, 100)
+            drawRect(150, -250, 100, 100)
+            drawRect(-250, 150, 100, 100)
+            drawRect(150, 150, 100, 100)
 
-    return (
-        <Graphics draw={draw} />
+            drawRect(-325, -50, 100, 100)
+            drawRect(225, -50, 100, 100)
+            drawRect(-50, 225, 100, 100)
+            drawRect(-50, -325, 100, 100)
+
+            g.beginFill(0xff0000, 1)
+            drawCircle(0, 0, 4)
+            drawCircle(100, 0, 4)
+            drawCircle(-100, 0, 4)
+            drawCircle(0, 100, 4)
+            drawCircle(0, -100, 4)
+
+            g.endFill()
+        },
+        [offset]
     )
+
+    return <Graphics draw={draw} />
 }
 
 export default GameMap

@@ -1,22 +1,26 @@
+import Point from "../types/Point"
+
 export enum EventToServerType {
-    PLAYER_MOVED = 0,
-    PLAYER_CAST = 1
+    PLAYER_MOVING_TO = 0,
+    PLAYER_CAST = 1,
+    PLAYER_SET_USERNAME = 2
 }
 
-export type EventToServer = PlayerMovedEvent | PlayerCastEvent
+export type EventToServer = PlayerMovingToEvent | PlayerCastEvent | PlayerSetUsernameEvent
 
-export type PlayerMovedEvent = {
-    type: EventToServerType.PLAYER_MOVED
-    data: {
-        x: number
-        y: number
-    }
+export type PlayerMovingToEvent = {
+    type: EventToServerType.PLAYER_MOVING_TO
+    data: Point
 }
 
 export type PlayerCastEvent = {
-    type: EventToServerType.PLAYER_MOVED
+    type: EventToServerType.PLAYER_CAST
+    data: Point
+}
+
+export type PlayerSetUsernameEvent = {
+    type: EventToServerType.PLAYER_SET_USERNAME
     data: {
-        x: number
-        y: number
+        username: string
     }
 }

@@ -3,19 +3,22 @@ import Point from "./types/Point"
 export const GAME_SCREEN_WIDTH = 1200
 export const GAME_SCREEN_HEIGHT = 800
 
-export const PLAYER_SPEED = 5
+export const GAME_SCREEN_CENTER = { x: GAME_SCREEN_WIDTH / 2, y: GAME_SCREEN_HEIGHT / 2 }
 
-export const mousePosToGamePos = (mousePos: Point, offset: Point) => ({
-    x: offset.x + (GAME_SCREEN_WIDTH / 2) - mousePos.x,
-    y: offset.y + (GAME_SCREEN_HEIGHT / 2) - mousePos.y
-})
+export const SPRITE_HEIGHT = 30
 
-export const moveTowards = (current: Point, target: Point, maxDistanceDelta: number) => {
-    const difference = { x: target.x - current.x, y: target.y - current.y }
-    const magnitude = Math.sqrt(difference.x * difference.x + difference.y * difference.y)
-    if (magnitude <= maxDistanceDelta || magnitude === 0) return target
-    return {
-        x: current.x + (difference.x / magnitude) * maxDistanceDelta,
-        y: current.y + (difference.y / magnitude) * maxDistanceDelta
+export const BASE_PLAYER_SPEED = 100
+
+export const moveTowards = (current: Point, target: Point, maxDistanceToTravel: number) => {
+    const differenceX = target.x - current.x
+    const differenceY = target.y - current.y
+    const magnitude = Math.sqrt(differenceX * differenceX + differenceY * differenceY)
+    if (magnitude <= maxDistanceToTravel) {
+        return target
+    } else {
+        return {
+            x: current.x + (differenceX / magnitude) * maxDistanceToTravel,
+            y: current.y + (differenceY / magnitude) * maxDistanceToTravel
+        }
     }
 }

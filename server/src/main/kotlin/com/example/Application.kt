@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.state.ServerState
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -7,6 +8,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import java.util.concurrent.atomic.AtomicReference
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
@@ -14,11 +16,14 @@ fun main() {
 }
 
 fun Application.module() {
-    configureSockets()
+    val serverState = AtomicReference(ServerState())
+    serverState.get().start()
+
+    configureSockets(serverState)
     configureSerialization()
     configureSecurity()
     configureHTTP()
-    configureRouting()
+    configureRouting(serverState)
 }
 
 fun Application.configureSerialization() {

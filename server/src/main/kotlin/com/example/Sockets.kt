@@ -1,12 +1,19 @@
 package com.example
 
+import arrow.core.flatMap
+import com.example.events.deserializeEventData
+import com.example.events.outbound.PlayerUsernameRequestEvent
+import com.example.state.Connection
+import com.example.state.ServerState
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import java.time.Duration
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
+import java.util.*
+import java.util.concurrent.atomic.AtomicReference
 
-fun Application.configureSockets() {
+fun Application.configureSockets(serverState: AtomicReference<ServerState>) {
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
@@ -14,15 +21,22 @@ fun Application.configureSockets() {
         masking = false
     }
     routing {
-        webSocket("/ws") { // websocketSession
-            for (frame in incoming) {
-                if (frame is Frame.Text) {
-                    val text = frame.readText()
-                    outgoing.send(Frame.Text("YOU SAID: $text"))
-                    if (text.equals("bye", ignoreCase = true)) {
-                        close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
+        webSocket("/game") {
+            val thisConnection = Connection(this)
+            serverState.get().connections += thisConnection
+            thisConnection.session.sendEvent(PlayerUsernameRequestEvent())
+            try {
+                for (frame in incoming) {
+                    frame as? Frame.Text ?: continue
+                    val receivedText = frame.readText()
+                    parseStringToEvent(receivedText).flatMap(::deserializeEventData).map {
+                        it.onReceive(thisConnection, serverState.get())
                     }
                 }
+            } catch (e: Exception) {
+                println(e.localizedMessage)
+            } finally {
+                serverState.get().connections -= thisConnection
             }
         }
     }

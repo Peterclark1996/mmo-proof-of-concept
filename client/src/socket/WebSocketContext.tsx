@@ -1,62 +1,69 @@
 import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from "react"
-import { EventFromServer } from "./EventFromServer"
+import { EventFromServer, EventFromServerType } from "./EventFromServer"
 import { EventToServer } from "./EventToServer"
 
 const getSocketUrl = () => {
     if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
-        return "ws://localhost:8080/ws"
+        return "ws://localhost:8080/game"
     }
-    return `wss://${window.location.host}/ws`
+    return `wss://${window.location.host}/game`
 }
 
 const limitedRetries = false
 const maxRetries = 5
 
+const eventListeners: { [key: number]: (event: EventFromServer) => void } = {}
+
+const addListenerToSocket = (eventType: EventFromServerType, func: (event: EventFromServer) => void) =>
+    (eventListeners[eventType] = func)
+
 const WebSocketContext = createContext<{
     connect: (socketUrl: string, retriesRemaining?: number) => void
     disconnect: () => void
-    on: (event: EventFromServer, func: (event: EventFromServer) => void) => void
+    on: (event: EventFromServerType, func: (event: EventFromServer) => void) => void
     send: (event: EventToServer) => void
 }>({
-    connect: () => {},
-    disconnect: () => {},
-    on: () => {},
-    send: () => {}
+    connect: () => {
+        return undefined
+    },
+    disconnect: () => {
+        return undefined
+    },
+    on: addListenerToSocket,
+    send: () => {
+        return undefined
+    }
 })
+
+const onEventReceived = (messageEvent: MessageEvent<EventFromServer>) => {
+    const event: EventFromServer = JSON.parse(messageEvent.data.toString())
+    const listener = eventListeners[event.type]
+
+    if (listener != undefined) listener(event)
+}
 
 export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     const [connection, setConnection] = useState<WebSocket | undefined>()
-    const [eventListeners, setEventListeners] = useState<{ [key: number]: (event: EventFromServer) => void }>({})
+
     const [hasFailedToConnect, setHasFailedToConnect] = useState(false)
-
-    const onEventReceived = useCallback(
-        (event: MessageEvent<any>) => {
-            const eventObject: EventFromServer = JSON.parse(event.toString())
-            const listener = eventListeners[eventObject.type]
-            if (listener != undefined) listener(eventObject)
-        },
-        [eventListeners]
-    )
-
-    const addListenerToSocket = useCallback((event: EventFromServer, func: (event: EventFromServer) => void) => {
-        if (eventListeners[event.type] !== undefined) return
-
-        setEventListeners(eventListeners => ({
-            ...eventListeners,
-            [event.type]: func
-        }))
-    }, [])
 
     const sendToSocket = useCallback(
         (event: EventToServer) => {
             if (connection === undefined || connection.readyState !== WebSocket.OPEN) return
 
-            connection.send(JSON.stringify(event))
+            const eventToSend = {
+                type: event.type,
+                data: JSON.stringify(event.data)
+            }
+
+            connection.send(JSON.stringify(eventToSend))
         },
         [connection]
     )
 
-    const disconnectFromSocket = () => {}
+    const disconnectFromSocket = () => {
+        console.log("DISCONNECTING")
+    }
 
     const connectToSocket = useCallback(
         (socketUrl: string, retriesRemaining = maxRetries) => {
@@ -106,7 +113,7 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
                 newConnection.close()
             }
         },
-        [connection, hasFailedToConnect, onEventReceived]
+        [connection, hasFailedToConnect]
     )
 
     useEffect(() => {

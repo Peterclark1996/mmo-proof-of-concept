@@ -2,7 +2,7 @@ import classes from "./Login.module.scss"
 import { useNavigate } from "react-router-dom"
 
 type LoginProps = {
-    username: string,
+    username: string
     setUsername: (username: string) => void
 }
 
@@ -21,7 +21,7 @@ const Login = ({ username, setUsername }: LoginProps) => {
             <h1>Pete MMO</h1>
             <div className="d-flex">
                 <input className={`rounded border-0 px-2 ${classes.input}`} value={username} onChange={onInputChange} />
-                <div role="button" className="ms-1 p-1 rounded bg-success" onClick={onLoginClick}>
+                <div role="button" className="ms-2 p-1 rounded bg-success" onClick={onLoginClick}>
                     Login
                 </div>
             </div>
