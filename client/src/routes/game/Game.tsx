@@ -2,17 +2,25 @@ import { useEffect, useState } from "react"
 import GameScreen from "./GameScreen"
 import Point from "../../types/Point"
 import { useNavigate } from "react-router-dom"
-import { useWebSocket } from "../../socket/WebSocketContext"
-import { EventToServerType } from "../../socket/EventToServer"
+import { useWebSocket } from "../../contexts/socket/WebSocketContext"
+import { EventToServerType } from "../../contexts/socket/EventToServer"
 import { GAME_SCREEN_CENTER } from "../../constants"
-import { EventFromServer, EventFromServerType, PlayerPositionsUpdatedEvent } from "../../socket/EventFromServer"
+import {
+    EventFromServer,
+    EventFromServerType,
+    PlayerPositionsUpdatedEvent
+} from "../../contexts/socket/EventFromServer"
 import PlayerPosition from "../../types/PlayerPosition"
+import DebugInfo from "./DebugInfo"
+import { useUserSettings } from "../../contexts/UserSettingsContext"
+import { Application } from "pixi.js"
 
 type GameProps = {
     username: string
 }
 
 const Game = ({ username }: GameProps) => {
+    const { settings } = useUserSettings()
     const navigate = useNavigate()
     const { on, send } = useWebSocket()
 
@@ -55,15 +63,18 @@ const Game = ({ username }: GameProps) => {
         y: GAME_SCREEN_CENTER.y - localPlayerPosition.y
     }
 
+    const [appHandle, setAppHandle] = useState<Application>()
+
     return (
         <div>
-            <div>
-                Server Position: {Math.round(localPlayerFromServerPerspective?.x ?? 0)},{" "}
-                {Math.round(localPlayerFromServerPerspective?.y ?? 0)}
-            </div>
-            <div>
-                Client Position: {Math.round(localPlayerPosition.x)}, {Math.round(localPlayerPosition.y)}
-            </div>
+            {settings.isInDebugMode && (
+                <DebugInfo
+                    appHandle={appHandle}
+                    playerId={username}
+                    playerPositionServerSide={localPlayerFromServerPerspective ?? { x: 0, y: 0 }}
+                    playerPostionClientSide={localPlayerPosition}
+                />
+            )}
             <GameScreen
                 localUsername={username}
                 playerPositions={playerPositions}
@@ -71,6 +82,7 @@ const Game = ({ username }: GameProps) => {
                 serverPlayerPosition={localPlayerFromServerPerspective ?? { x: 0, y: 0 }}
                 localPlayerPosition={localPlayerPosition}
                 onLocalPlayerPositionUpdated={onLocalPlayerPositionUpdated}
+                onAppHandleUpdated={setAppHandle}
             />
             <div>Q: Spell</div>
         </div>

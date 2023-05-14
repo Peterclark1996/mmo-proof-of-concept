@@ -1,13 +1,16 @@
 import { AppConsumer, Sprite, Stage, Text } from "@inlet/react-pixi"
 import { TextStyle } from "@pixi/text"
 import { useCallback, useEffect, useState } from "react"
-import CharacterSprite from "./../../assets/Character.png"
+import CharacterSprite from "./../../assets/character.png"
+import CharacterDebugSprite from "./../../assets/character_debug.png"
 import { GAME_SCREEN_CENTER, GAME_SCREEN_HEIGHT, GAME_SCREEN_WIDTH, SPRITE_HEIGHT } from "../../constants"
 import GameMap from "./GameMap"
 import Point from "./../../types/Point"
-import { useWebSocket } from "../../socket/WebSocketContext"
-import { EventToServerType } from "../../socket/EventToServer"
+import { useWebSocket } from "../../contexts/socket/WebSocketContext"
+import { EventToServerType } from "../../contexts/socket/EventToServer"
 import PlayerPosition from "../../types/PlayerPosition"
+import { useUserSettings } from "../../contexts/UserSettingsContext"
+import { Application } from "pixi.js"
 
 type GameScreenProps = {
     localUsername: string
@@ -16,6 +19,7 @@ type GameScreenProps = {
     localPlayerPosition: Point
     serverPlayerPosition: Point
     onLocalPlayerPositionUpdated: (point: Point) => void
+    onAppHandleUpdated: (appHandle: Application) => void
 }
 
 let recentlySentMovement = false
@@ -27,7 +31,8 @@ const GameScreen = ({
     offset,
     localPlayerPosition,
     serverPlayerPosition,
-    onLocalPlayerPositionUpdated
+    onLocalPlayerPositionUpdated,
+    onAppHandleUpdated
 }: GameScreenProps) => {
     const [isMoving, setIsMoving] = useState(false)
     const [mousePositionInGameWorld, setMousePositionInGameWorld] = useState<Point>({ x: 0, y: 0 })
@@ -101,19 +106,32 @@ const GameScreen = ({
 
     const currentTargetPostion = isMoving ? mousePositionInGameWorld : lastTargetPosition
 
-    const serverPlayers = playerPositions.filter(playerPosition => playerPosition.playerId !== localUsername)
+    const { settings } = useUserSettings()
 
-    const serverPlayerSpriteComponents = serverPlayers.map(playerPosition => (
-        <Sprite
-            key={`${playerPosition.playerId}-sprite`}
-            image={CharacterSprite}
-            anchor={0.5}
-            x={offset.x + playerPosition.x}
-            y={offset.y + playerPosition.y - SPRITE_HEIGHT / 2}
-        />
-    ))
+    const serverPlayerPositions = playerPositions.filter(playerPosition => playerPosition.playerId !== localUsername)
+    const playerSpritesToRender = settings.isInDebugMode ? playerPositions : serverPlayerPositions
 
-    const serverPlayerInfoComponents = serverPlayers.map(playerPosition => (
+    const serverPlayerSpriteComponents = playerSpritesToRender.map(playerPosition =>
+        playerPosition.playerId === localUsername ? (
+            <Sprite
+                key={`${playerPosition.playerId}-sprite`}
+                image={CharacterDebugSprite}
+                anchor={0.5}
+                x={offset.x + playerPosition.x}
+                y={offset.y + playerPosition.y - SPRITE_HEIGHT / 2}
+            />
+        ) : (
+            <Sprite
+                key={`${playerPosition.playerId}-sprite`}
+                image={CharacterSprite}
+                anchor={0.5}
+                x={offset.x + playerPosition.x}
+                y={offset.y + playerPosition.y - SPRITE_HEIGHT / 2}
+            />
+        )
+    )
+
+    const serverPlayerInfoComponents = serverPlayerPositions.map(playerPosition => (
         <Text
             key={`${playerPosition.playerId}-text`}
             text={playerPosition.playerId}
@@ -132,16 +150,19 @@ const GameScreen = ({
                 options={{ backgroundColor: 0x84dc8b, antialias: false }}
             >
                 <AppConsumer>
-                    {app => (
-                        <GameMap
-                            app={app}
-                            currentTargetPostion={currentTargetPostion}
-                            offset={offset}
-                            serverPlayerPosition={serverPlayerPosition}
-                            localPlayerPosition={localPlayerPosition}
-                            onLocalPlayerPositionUpdated={onLocalPlayerPositionUpdated}
-                        />
-                    )}
+                    {app => {
+                        onAppHandleUpdated(app)
+                        return (
+                            <GameMap
+                                app={app}
+                                currentTargetPostion={currentTargetPostion}
+                                offset={offset}
+                                serverPlayerPosition={serverPlayerPosition}
+                                localPlayerPosition={localPlayerPosition}
+                                onLocalPlayerPositionUpdated={onLocalPlayerPositionUpdated}
+                            />
+                        )
+                    }}
                 </AppConsumer>
 
                 {serverPlayerSpriteComponents}

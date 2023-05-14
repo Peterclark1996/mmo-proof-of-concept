@@ -16,15 +16,15 @@ const Login = ({ username, setUsername }: LoginProps) => {
     }
 
     return (
-        <div className="rounded p-2 text-white select-none bg-slate-500">
+        <div className="rounded p-2 text-white select-none bg-slate-500 form-emboss">
             <span className="text-4xl">Pete MMO</span>
             <div className="flex mt-2">
                 <input
-                    className="rounded border-0 px-2 outline-none text-slate-800"
+                    className="rounded border-0 px-2 outline-none text-slate-800 form-deboss"
                     value={username}
                     onChange={onInputChange}
                 />
-                <div role="button" className="ms-2 py-1 px-2 rounded bg-green-400" onClick={onLoginClick}>
+                <div role="button" className="ms-2 py-1 px-2 rounded bg-green-400 form-emboss" onClick={onLoginClick}>
                     Login
                 </div>
             </div>
