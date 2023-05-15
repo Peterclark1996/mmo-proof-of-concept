@@ -5,7 +5,7 @@ import arrow.core.left
 import com.example.events.inbound.PlayerCastEvent
 import com.example.events.inbound.PlayerMovingToEvent
 import com.example.events.inbound.PlayerSetUsernameEvent
-import com.example.parse
+import com.example.func.parse
 import kotlinx.serialization.Serializable
 
 @Serializable

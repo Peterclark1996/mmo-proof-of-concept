@@ -6,7 +6,7 @@ const getSocketUrl = () => {
     if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
         return "ws://localhost:8080/game"
     }
-    return `wss://${window.location.host}/game`
+    return `ws://${window.location.host}/game`
 }
 
 const limitedRetries = false

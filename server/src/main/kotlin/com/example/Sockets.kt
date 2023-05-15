@@ -3,6 +3,8 @@ package com.example
 import arrow.core.flatMap
 import com.example.events.deserializeEventData
 import com.example.events.outbound.PlayerUsernameRequestEvent
+import com.example.func.parseStringToEvent
+import com.example.func.sendEvent
 import com.example.state.Connection
 import com.example.state.ServerState
 import io.ktor.server.websocket.*

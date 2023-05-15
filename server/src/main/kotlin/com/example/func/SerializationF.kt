@@ -1,4 +1,4 @@
-package com.example
+package com.example.func
 
 import com.example.events.InboundEvent
 import io.ktor.websocket.*

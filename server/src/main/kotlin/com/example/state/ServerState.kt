@@ -3,12 +3,11 @@ package com.example.state
 import com.example.events.outbound.PlayerPosition
 import com.example.events.outbound.PlayerPositionList
 import com.example.events.outbound.PlayerPositionsUpdatedEvent
-import com.example.sendEvent
+import com.example.func.sendEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
 import java.util.*
 import kotlin.math.sqrt
 
