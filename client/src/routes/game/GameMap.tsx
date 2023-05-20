@@ -2,12 +2,7 @@ import { Graphics } from "@inlet/react-pixi"
 import Point from "./../../types/Point"
 import { Application, Graphics as PixiGraphics } from "pixi.js"
 import { useCallback, useEffect } from "react"
-import {
-    moveTowards,
-    BASE_PLAYER_SPEED,
-    INTERPOLATION_PULL_BACK_SPEED_RATIO,
-    PIXI_TICKER_TARGET_FPMS
-} from "../../constants"
+import { BASE_PLAYER_SPEED, INTERPOLATION_PULL_BACK_SPEED_RATIO, PIXI_TICKER_TARGET_FPMS } from "../../constants"
 
 type GameMapProps = {
     app: Application
@@ -92,3 +87,17 @@ const GameMap = ({
 }
 
 export default GameMap
+
+const moveTowards = (current: Point, target: Point, maxDistanceToTravel: number) => {
+    const differenceX = target.x - current.x
+    const differenceY = target.y - current.y
+    const magnitude = Math.sqrt(differenceX * differenceX + differenceY * differenceY)
+    if (magnitude <= maxDistanceToTravel) {
+        return target
+    } else {
+        return {
+            x: current.x + (differenceX / magnitude) * maxDistanceToTravel,
+            y: current.y + (differenceY / magnitude) * maxDistanceToTravel
+        }
+    }
+}
