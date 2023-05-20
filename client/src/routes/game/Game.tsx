@@ -4,7 +4,7 @@ import Point from "../../types/Point"
 import { useNavigate } from "react-router-dom"
 import { useWebSocket } from "../../contexts/socket/WebSocketContext"
 import { EventToServerType } from "../../contexts/socket/EventToServer"
-import { GAME_SCREEN_CENTER } from "../../constants"
+import { GAME_SCREEN_CENTER } from "./constants"
 import {
     EventFromServer,
     EventFromServerType,

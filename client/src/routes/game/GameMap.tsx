@@ -2,7 +2,7 @@ import { Graphics } from "@inlet/react-pixi"
 import Point from "./../../types/Point"
 import { Application, Graphics as PixiGraphics } from "pixi.js"
 import { useCallback, useEffect } from "react"
-import { BASE_PLAYER_SPEED, INTERPOLATION_PULL_BACK_SPEED_RATIO, PIXI_TICKER_TARGET_FPMS } from "../../constants"
+import { BASE_PLAYER_SPEED, INTERPOLATION_PULL_BACK_SPEED_RATIO, PIXI_TICKER_TARGET_FPMS } from "./constants"
 
 type GameMapProps = {
     app: Application
