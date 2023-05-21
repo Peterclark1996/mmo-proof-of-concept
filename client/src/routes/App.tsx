@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { useState } from "react"
 import { useUserSettings } from "../contexts/UserSettingsContext"
 import Checkbox from "../library/Checkbox"
+import { WebSocketProvider } from "../contexts/socket/WebSocketContext"
 
 const App = () => {
     const { settings, updateSettings } = useUserSettings()
@@ -18,7 +19,14 @@ const App = () => {
         <BrowserRouter>
             <Routes>
                 <Route path="/login" element={<Login username={username} setUsername={setUsername} />} />
-                <Route path="/game" element={<Game username={username} />} />
+                <Route
+                    path="/game"
+                    element={
+                        <WebSocketProvider>
+                            <Game username={username} />
+                        </WebSocketProvider>
+                    }
+                />
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
             <div className="fixed bottom-0 right-0 flex bg-slate-500 rounded-tl py-1 px-2 text-white select-none items-center">

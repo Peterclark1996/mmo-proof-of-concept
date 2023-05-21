@@ -52,7 +52,7 @@ data class ServerState(
                                 it.positionX,
                                 it.positionY
                             )
-                        }
+                        }.filter { it.playerId != "" }
                     )
                 )
 
